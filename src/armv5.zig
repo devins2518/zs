@@ -57,6 +57,26 @@ pub const BranchExRegInstruction = struct {
     }
 };
 
+pub const SoftwareIntInstruction = struct {
+    cond: arm.Cond,
+
+    fn parse(op: u32) SoftwareIntInstruction {
+        const cond = arm.Cond.from(op);
+
+        return SoftwareIntInstruction{ .cond = cond };
+    }
+};
+
+pub const BreakpointInstruction = struct {
+    fn parse(op: u32) BreakpointInstruction {
+        const cond = arm.Cond.from(op);
+        if (cond != .al) return error.Unpredictable;
+        if (@as(u28, @truncate(op)) & 0x120070 != 0x120070) return error.Malformed;
+
+        return BreakpointInstruction{};
+    }
+};
+
 test "static analysis" {
     std.testing.refAllDeclsRecursive(@This());
 }
