@@ -40,9 +40,9 @@ const SvcRegStartIdx = FiqRegStartIdx + 8;
 const AbtRegStartIdx = SvcRegStartIdx + 2;
 const IrqRegStartIdx = AbtRegStartIdx + 2;
 const UndefRegStartIdx = IrqRegStartIdx + 2;
-_registers: [31]u32,
-cpsr: StatusReg,
-_spsr: [5]StatusReg,
+_registers: [31]u32 = undefined,
+cpsr: StatusReg = .{},
+_spsr: [5]StatusReg = undefined,
 
 fn getRegRaw(self: *const Self, reg_num: u4) *u32 {
     return switch (self.cpsr.mode) {
