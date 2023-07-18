@@ -8,6 +8,8 @@ pub const Error = error{ Unpredictable, Malformed };
 pub const Instruction = union(enum) {
     branch: BranchLinkImmInstruction,
     branch_ex: BranchExRegInstruction,
+    swi: SoftwareIntInstruction,
+    bkpt: BreakpointInstruction,
 };
 
 pub const BranchLinkImmInstruction = struct {
