@@ -16,10 +16,10 @@ const Mode = enum(u5) {
 };
 
 const StatusReg = packed struct(u32) {
-    mode: Mode = .user,
+    mode: Mode = .svc,
     state: enum(u1) { arm, thumb } = .arm,
-    fiq_disable: bool = false,
-    irq_disable: bool = false,
+    fiq_disable: bool = true,
+    irq_disable: bool = true,
     abt_disable: bool = false,
     endian: enum(u1) { little, big } = .little,
     _res1: u14 = 0,
