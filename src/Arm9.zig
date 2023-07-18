@@ -78,9 +78,9 @@ fn getReg(self: *const Self, reg_num: u4) u32 {
 
 test "cpsr endianness" {
     var cpsr = StatusReg{};
-    try std.testing.expectEqual(@as(u32, 0x00000010), @as(u32, @bitCast(cpsr)));
+    try std.testing.expectEqual(@as(u32, 0x000000D3), @as(u32, @bitCast(cpsr)));
     cpsr.sign = true;
-    try std.testing.expectEqual(@as(u32, 0x80000010), @as(u32, @bitCast(cpsr)));
+    try std.testing.expectEqual(@as(u32, 0x800000D3), @as(u32, @bitCast(cpsr)));
 }
 
 test "banked register idx" {
