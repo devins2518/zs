@@ -1,4 +1,6 @@
 const std = @import("std");
+const arm = @import("arm.zig");
+const armv5 = @import("armv5.zig");
 const Self = @This();
 
 const Mode = enum(u5) {

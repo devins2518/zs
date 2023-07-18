@@ -17,6 +17,8 @@ pub fn main() !void {
 }
 
 test "simple test" {
+    _ = @import("arm.zig");
     _ = @import("Arm9.zig");
+    _ = @import("armv5.zig");
     std.testing.refAllDeclsRecursive(@This());
 }
