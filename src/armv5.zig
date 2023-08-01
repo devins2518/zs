@@ -79,6 +79,79 @@ pub const BreakpointInstruction = struct {
     }
 };
 
+pub const AluInstruction = struct {
+    cond: arm.Cond,
+    op: enum { @"and", eor, sub, rsb, add, adc, sbc, rsc, tst, teq, cmp, cmn, orr, mov, bic, mvn },
+    s: bool,
+    rd: u4,
+    rn: u4,
+    op2: union(enum) {
+        imm: struct {
+            ror: u4,
+            imm: u8,
+        },
+        reg: struct {
+            shift: union(enum) {
+                by_reg: u4,
+                by_imm: u5,
+            },
+            type: arm.ShiftType,
+            rm: u4,
+        },
+    },
+
+    pub fn isLogical(self: AluInstruction) bool {
+        return switch (self.op) {
+            .@"and", .eor, .tst, .teq, .orr, .mov, .bic, .mvn => true,
+            else => false,
+        };
+    }
+
+    pub fn isArithmetic(self: AluInstruction) bool {
+        return switch (self.op) {
+            .adc, .add, .cmn, .cmp, .rsb, .rsc, .sbc, .sub => true,
+            else => false,
+        };
+    }
+
+    pub fn parse(op: u32) !AluInstruction {
+        const cond = arm.Cond.from(op);
+        const imm_second_op = @as(u1, @truncate(op >> 25)) == 1;
+        const opcode: Field(AluInstruction, .op) = @enumFromInt(@as(u4, @truncate(op >> 21)));
+        const s = @as(u1, @truncate(op >> 20)) == 1;
+        const rd: u4 = @truncate(op >> 12);
+        const rn: u4 = @truncate(op >> 16);
+        const op2_is_imm = @as(u1, @truncate(op >> 4)) == 1;
+        const op2_shift_rm = @as(u4, @truncate(op));
+        const op2_shift_type: Field(Field(Field(AluInstruction, .op2), .reg), .type) = @enumFromInt(@as(u2, @truncate(op >> 5)));
+        const op2_shift_imm = @as(u5, @truncate(op >> 7));
+        const op2_shift_reg = @as(u4, @truncate(op >> 8));
+
+        if ((opcode == .mov or opcode == .mvn) and rn != 0) return error.Malformed;
+
+        const op2: Field(AluInstruction, .op2) = if (imm_second_op)
+            .{ .imm = .{ .ror = @as(u4, @truncate(op >> 8)), .imm = @as(u8, @truncate(op)) } }
+        else
+            .{ .reg = .{
+                .shift = if (op2_is_imm)
+                    .{ .by_reg = op2_shift_reg }
+                else
+                    .{ .by_imm = op2_shift_imm },
+                .type = op2_shift_type,
+                .rm = op2_shift_rm,
+            } };
+
+        return AluInstruction{
+            .cond = cond,
+            .op = opcode,
+            .s = s,
+            .rd = rd,
+            .rn = rn,
+            .op2 = op2,
+        };
+    }
+};
+
 test "static analysis" {
     std.testing.refAllDeclsRecursive(@This());
 }

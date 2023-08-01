@@ -20,3 +20,5 @@ pub const Cond = enum(u4) {
         return @enumFromInt(@as(u4, @truncate(op >> 28)));
     }
 };
+
+pub const ShiftType = enum(u2) { lsl, lsr, asr, ror };
